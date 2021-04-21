@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  nginx:
+    image: nginx:1.18.0-alpine
+    ports:
+      - 8443:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl/server.crt:/etc/nginx/ssl/server.crt:ro
+      - ./nginx/ssl/server.key:/etc/nginx/ssl/server.key:ro
+      - ./nginx/ssl/ca-bundle.crt:/etc/nginx/ssl/ca-bundle.crt:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+
+  mqttbroker:
+    image: vernemq/vernemq:latest-alpine
+    environment:
+      - "DOCKER_VERNEMQ_ACCEPT_EULA=yes"
+      - "DOCKER_VERNEMQ_LOG__CONSOLE=both"
+      - "DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"
+      - "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"
+      - "DOCKER_VERNEMQ_LISTENER__WS__PROXY_PROTOCOL=on"
+      - "DOCKER_VERNEMQ_LISTENER__WS__PROXY_PROTOCOL_USE_CN_AS_USERNAME=on"
+      - "DOCKER_VERNEMQ_LISTENER__WS__ALLOWED_PROTOCOL_VERSIONS=3,4"
+      - "DOCKER_VERNEMQ_LISTENER__WS__DEFAULT=0.0.0.0:8080"
+
